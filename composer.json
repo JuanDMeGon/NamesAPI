@@ -1,8 +1,8 @@
 {
-	"name": "laravel/laravel",
-	"description": "The Laravel Framework.",
-	"keywords": ["framework", "laravel"],
-	"license": "MIT",
+	"name": "JuanDMeGon/NamesAPI",
+	"description": "RESTful API to provide metadata about some names around the world",
+	"keywords": ["api", "names", "restful", "meta-data"],
+	"license": "GPL",
 	"require":
 	{
 		"laravel/framework": "4.2.*",
