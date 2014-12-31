@@ -78,8 +78,9 @@ return array(
 	|
 	*/
 
-	'key' => $_ENV['app_key'],
-	//Take into account that if app_key is not stablished in a .env.*.php file the application will fail
+	'key' => getenv('app_key') ?: 'please-change-for-security',
+	// Take into account that if app_key is not stablished in a .env.*.php randomly...
+	// ...The security associated with the key will be vulnerable
 
 	'cipher' => MCRYPT_RIJNDAEL_128,
 
