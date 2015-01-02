@@ -14,7 +14,9 @@ $ sudo apt-get install php5-mongo
 ```
 >For other OS or distros use the official PHP or MongoDB documents.
 
-- Download the project source, then you must configure your sensitive data like database username or password. To do this, NamesAPI uses '.env.*.php' files, (see [.env.example](.env.example) for details) in this files you have to stablish your database connection data (database hosts and name, port, user and password ) the crypt key (is different for every Laravel instance) and the default project url.
+- Download the project source, then you must configure your sensitive data like database username or password. To do this, NamesAPI uses '.env.*.php' files, (see [.env.example](.env.example) and/or [laravel sensitive data](http://laravel.com/docs/4.2/configuration#protecting-sensitive-configuration) for details) in this files you have to stablish your database connection data (database hosts and name, port, user and password ) the crypt key (is different for every Laravel instance), the default project url and the access_token. 
+
+>Note: The access_token is a public key obtained from your own Facebook app. More details in [Facebook Access Token Tool](https://developers.facebook.com/tools/accesstoken/).
 
 >Note: You must have at least a file called '.env.php' (notice the dot at the beginning) to apply the config on all environments.
 >If you want to set different sensitive data values by the environment you must first configure every desired environment in laravel (see [laravel environment configuration](http://laravel.com/docs/4.2/configuration#environment-configuration) for details) and then create a file called '.env.environmentName.php for example: '.env.local.php' or '.env.develop.php'. (see [laravel sensitive data](http://laravel.com/docs/4.2/configuration#protecting-sensitive-configuration) for details)
