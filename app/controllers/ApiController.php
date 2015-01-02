@@ -3,16 +3,6 @@
 
     header('Content-Type: text/html; charset=UTF-8');
 
-	/*//Before we must stablish the according configuration set for database
-	if(strpos($_SERVER["REMOTE_ADDR"],"127.0.0.1") !== false || strpos($_SERVER["REMOTE_ADDR"],"192.168.") !== false) //If we are in local server
-    {
-    	Config::set('database.default', 'mongodbnames2');//Must use mongodbnames2 (using VPS IP as host)
-    }
-    else
-    {
-    	Config::set('database.default', 'mongodbnames');//Must use mongodbnames (using localhost)
-    }*/
-
     function microtime_float()
     {
         list($useg, $seg) = explode(" ", microtime());
@@ -288,79 +278,62 @@
 
         public function tojson()
         {
-            //Se obtiene el nombre y el iso2 de todos los paises en la base de datos
-            $countries = DB::collection('countries')->project(array('_id' => 0, 'name' => 1, 'iso2' => 1))->get();
-
-            $orderedCountries = array();
-
-            //Se ordenan por medio de un array asociativo según el iso2 para su fácil ubicación
-            foreach ($countries as $country)
-            {
-                $iso2 = $country['iso2'];
-                $name = $country['name'];
-                $orderedCountries[$iso2] = $name;
-            }
-
-
-            //-------------------------
-
-            //Se obtiene el nombre y el codigo de todos los lenguajes en la base de datos
-            $languages = DB::collection('languages')->project(array('_id' => 0, 'name' => 1, 'code' => 1))->get();
-
-            $orderedLanguages = array();
-
-            //Se ordenan por medio de un array asociativo según el iso2 para su fácil ubicación
-            foreach ($languages as $language)
-            {
-                $code = $language['code'];
-                $name = $language['name'];
-                $orderedLanguages[$code] = $name;
-            }
-
             //Is declared a collection which going to contain all the names (proper and improper) separated in one array
             $collection = array('names' => array('proper' => array(), 'improper' => array()));
 
             $proper = 0; //Begin a proper names counter in zero
             $improper = 0; //Begin an improper names counter in zero
 
-            $cants = array(); //Begin a counter of results quantity for every char (in for loop)
-
             //Is stablished the token
-            $token = 'CAAFFZB69W4icBAMMSNnlaygHxnYFRveVvafshRycntluhzygZBjFfpA0R5IBdh7FmyaxYFp0Tt3rGxIU6GIUOo1upk3ywttPkKhOUSy33Icl7gd56cWX2Lb2N9eqUFxL4bHSUfbzmjUlDRgZCKz262f1KaRcD1ynzF4tGNRt2vqqqQIDuYjO6ahxeonwoyoDE0Q2i9NZByZBoOmcab9QE';
+            $token = 'CAAFFZB69W4icBAH1kJG3H9ZCXTmrJK8E5NEmmuLD4g9snLgVrdZAqWTr0luS3ot8JbPdGdZAy4svTzCxApUDRa4bihSdgE7zT2xUZB9D4KgfPR6v5rZC1ZC61av2acZA6yBVo0cQ7xAb3PDoLZA0KIMNpM1K3PieDYpXDsGvTvoQBi6jekoMEVJgZC1X6l5T3VeGZCbH6s45Vfcb4MR6CHooEhX';
             
-            $startTime = microtime_float(); //Se obtiene el tiempo inicial, justo antes de hacer la petición
-            for ($i = 'a'; $i <= 'a'; $i++) //Se hace un ciclo recorriendo letras
+            $startTime = microtime_float(); //Obtaining the execution start time
+
+            $queries = '|';//Initializing a variable with all the running queries
+            for ($i = 'a'; $i <= 'y'; $i++) //Loop through letters
             {
-                try//Se intenta hacer la petición, pues en algún momento puede fallar
+                try//Because the request could fail, we use try
                 {
-                    //Se hace la petición con la letra específica
+                    //Request by the loop letter (q=$i)
                     $names = file_get_contents("https://graph.facebook.com/search?q=$i&type=user&fields=name,locale,first_name,last_name,gender&access_token=$token");
 
-                    //Se parsea la respuesta obtenida
+                    $queries .= "$i|"; //Adding the query char to the record
+
+                    //Parsing response into an associative array(true)
                     $jsonNames = json_decode($names, true);
 
-                    //Se accede a la posición data de la respuesta (es la que contiene cada nombre)
+                    //The data possition have every name in the response
                     $jsonNames = $jsonNames['data'];
 
-                    $cants[$i] = sizeof($jsonNames); //Is obtained the quantity of names obtained for the specific char
-
-                    //Se recorre cada nombre, para comenzar a formar el documento correspondiente
+                    //Runing hover every name to beggin create the json document
                     foreach ($jsonNames as $name)
                     {
-                        //Se obtiene el nombre completo
+                        //Is obtained the complete name
                         $completeName = $name['name'];
 
-                        //Se obtiene el apellido
+                        //Is obtained the lastname
                         $lastname = $name['last_name'];
 
-                        //El nombre real es el nombre declarado menos el apellido (hay casos en que first_name no es completo ver perfil JuanDMeGon por ejemplo)
+                        //A real name is obtained from the declared name less the lastname (in some cases first_name is not complete ex:JuanDMeGon)
                         $realName = str_replace(" $lastname", '', $completeName);
 
                         //The composition is the number of spaces plus 1
                         $composition = substr_count($realName, ' ') + 1;
 
                         //Is obtained the gender value
-                        $gender = $name['gender'];
+
+                        //In some strange cases the gender is not defined
+                        //Watch https://graph.facebook.com/634631106/ for example which have not gender
+                        //Occording with the documents https://developers.facebook.com/docs/graph-api/reference/v2.2/user
+                        //Gender could be omitted for a custom value
+                        if(isset($name['gender']))
+                        {
+                            $gender = $name['gender'];
+                        }
+                        else
+                        {
+                            $gender = null;
+                        }
 
                         if($gender === 'male')//If gender is male, so code is 'm'
                         {
@@ -379,8 +352,8 @@
 
                         $partition = explode('_', $locale); //Is exploded into an array the langCode and the countryCode
 
-                        $languageCode = strtolower($partition[0]); //La primera posición es el codigo del lenguaje
-                        $countryCode = strtolower($partition[1]); //La segunda y última particion es el código iso2 del país
+                        $languageCode = strtolower($partition[0]); //First position is the language code
+                        $countryCode = strtolower($partition[1]); //Second positions is the iso2 country code
 
                         /*
                             * Notice: Take into account that some returned language and
@@ -388,15 +361,15 @@
                             * and the LA case (for LatinAmerica)
                         */
 
-                        //Se define una variable temporal
-                        //Notar que se vuelve a codificar el nombre OJO quedando en el formato (\u041d\u0486f, etc)
-                        //Y reemplazando los \ por | puesto que los \ generaban problemas con la expresión regular
+                        //Defining a temporal variable
+                        //Notice that the name is encoded again keepeng the format like (\u041d\u0486f, etc)
+                        //Reeplacing the '\' by '|' because the  '\' create some problems whit regex
                         $tmp = str_replace('\\', '|', json_encode($realName));
 
-                        //Se declara el patrón básico para validar nombres
+                        //Basic pattern to validate a name
                         $right = preg_match('/^"([a-zA-Z0-9|]{0,})([ ]{0,1}([a-zA-Z0-9|]{2,}))"$/', $tmp);
 
-                        if($right === 1)//Si la verificación tuvo coincidencias
+                        if($right === 1)//If verification match
                         {
                             $finalName = new Name; //Is created a Name object
                             $finalName->setAttributes($realName, 3, $gender, $composition, '', '', $countryCode, $languageCode);
@@ -407,7 +380,7 @@
                             //The proper names counter is increased in 1
                             $proper++;
                         }
-                        elseif($right === 0) //Si no hubo coincidencias
+                        elseif($right === 0) //If not match
                         {
                             $finalName = new Name; //Is created a Name object
                             $finalName->setAttributes($realName, 3, $gender, $composition, '', '', $countryCode, $languageCode);
@@ -418,42 +391,36 @@
                             //The improper names counter is increased in 1
                             $improper++;
                         }
-                        else//Si finalmente falló la verificación (retornó false)
+                        else//If fail (for some reason) show the error
                         {
-                            echo "Varification fail: tmp = $tmp";
-                        }
-
-                        
+                            echo "Verification fail: tmp = $tmp";
+                        }                        
                     }
                 }
-                catch(Exception $e)
+                catch(Exception $e)//If the request fail, so catch and continue the loop to next letter
                 {
-                    echo "Rquest fail at: -- $i --. $e";
-                    break;
+                    echo "Request fail at: -- $i --. $e";
+                    continue;
                 }
             }
 
-            $percentage = ($improper/$proper)*100;
-            $tiempo_fin = microtime_float(); //Se obtiene el tiempo final, justo despues del fin del ciclo
-            $tiempo_total = $tiempo_fin - $startTime;
-            $total = $proper + $improper;//Se calcula el total de nombres obtenidos
+            $percentage = ($improper/$proper)*100;//Calculating the improper names relation
+            $end_time = microtime_float(); //Obtaining the end time at the end of the loop
+            $total_time = $end_time - $startTime; //Calculating total execution time
+            $total = $proper + $improper;//Calculating the total names counter
 
-            echo "<p><strong>Proper</strong>: $proper. <strong>Improper:</strong> $improper ($percentage%). <strong>Total:</strong> $total. <strong>Total time: </strong>$tiempo_total</p>";
+            /*
+                *  
+                *   Inserting statistics into the collections
+                *
+            */
+            $collection['proper'] = $proper;
+            $collection['improper'] = "$improper ($percentage%)";
+            $collection['total_names'] = $total;
+            $collection['execution_time'] = $total_time;
+            $collection['query_string'] = $queries;
 
-
-            echo '<h1>Amounts</h1>';
-            echo '<table><tr><th>Query</th><th>Quantity</th></tr>';
-
-            $total = 0;//Se inicializa el total de cantidades
-            foreach ($cants as $query => $cantidad)//Se recorren las cantidades para presentarlas en una tabla
-            {
-                $total += $cantidad;
-                echo "<tr><td>$query</td><td>$cantidad</td></tr>";
-            }
-
-            echo "<tr><td><strong>Total</strong></td><td><strong>$total</strong></td></tr>";
-
-            echo '</table>';
+            //Parsing the collections into a final JSON
 
             $final = json_encode($collection, JSON_PRETTY_PRINT);
 
