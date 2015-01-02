@@ -3,11 +3,6 @@
 
     header('Content-Type: text/html; charset=UTF-8');
 
-    function microtime_float()
-    {
-        list($useg, $seg) = explode(" ", microtime());
-        return ((float)$useg + (float)$seg);
-    }
 	class ApiController extends BaseController
 	{
 		public function index()
@@ -119,7 +114,7 @@
             //Se establece el token
             $token = 'CAAFFZB69W4icBAKZCczTlqQha5SMM1T0o82jcknxl7mPYyF014BZBD7JKi0A617ZAClHnFtQ42mR95eIUaiBnLm1Esno0f3a3sPiXZCbzyc0SOS2pr0IkkWK4dj79Eydug23ZAH5HPEYwR0VXBohkNex7jVq1VLxYY8MyLIgWp8SxrbArtqaM7ZC8ZACpZChYFtuGMM7sGmrzICjc1DJQdCow';
 
-            $tiempo_inicio = microtime_float(); //Se obtiene el tiempo inicial, justo antes de hacer la petición
+            $tiempo_inicio = Api::microtime_float(); //Se obtiene el tiempo inicial, justo antes de hacer la petición
             for ($i = 'a'; $i <= 'c'; $i++) //Se hace un ciclo recorriendo letras
             {
                 try//Se intenta hacer la petición, pues en algún momento puede fallar
@@ -221,7 +216,7 @@
             }
 
             $relacion = ($incorrectos/$correctos)*100;
-            $tiempo_fin = microtime_float(); //Se obtiene el tiempo final, justo despues del fin del ciclo
+            $tiempo_fin = Api::microtime_float(); //Se obtiene el tiempo final, justo despues del fin del ciclo
             $tiempo_total = $tiempo_fin - $tiempo_inicio;
             $total = $correctos + $incorrectos;//Se calcula el total de nombres obtenidos
 
@@ -284,13 +279,14 @@
             $proper = 0; //Begin a proper names counter in zero
             $improper = 0; //Begin an improper names counter in zero
 
-            //Is stablished the token
-            $token = 'CAAFFZB69W4icBAH1kJG3H9ZCXTmrJK8E5NEmmuLD4g9snLgVrdZAqWTr0luS3ot8JbPdGdZAy4svTzCxApUDRa4bihSdgE7zT2xUZB9D4KgfPR6v5rZC1ZC61av2acZA6yBVo0cQ7xAb3PDoLZA0KIMNpM1K3PieDYpXDsGvTvoQBi6jekoMEVJgZC1X6l5T3VeGZCbH6s45Vfcb4MR6CHooEhX';
+            //Is stablished the token from the .env files
+            //Notice that if is not stablished going to be an empty value
+            $token = getenv('access_token') ?: '';
             
-            $startTime = microtime_float(); //Obtaining the execution start time
+            $startTime = Api::microtime_float(); //Obtaining the execution start time
 
             $queries = '|';//Initializing a variable with all the running queries
-            for ($i = 'a'; $i <= 'y'; $i++) //Loop through letters
+            for ($i = 'a'; $i <= 'a'; $i++) //Loop through letters
             {
                 try//Because the request could fail, we use try
                 {
@@ -405,7 +401,7 @@
             }
 
             $percentage = ($improper/$proper)*100;//Calculating the improper names relation
-            $end_time = microtime_float(); //Obtaining the end time at the end of the loop
+            $end_time = Api::microtime_float(); //Obtaining the end time at the end of the loop
             $total_time = $end_time - $startTime; //Calculating total execution time
             $total = $proper + $improper;//Calculating the total names counter
 
