@@ -387,20 +387,29 @@
                             //The improper names counter is increased in 1
                             $improper++;
                         }
-                        else//If fail (for some reason) show the error
+                        else//If fail (for some reason)
                         {
-                            echo "Verification fail: tmp = $tmp";
+                            //The $tmp variable value is saved
+                            $collection['errors']['verification'][]= "Verification fail: tmp = $tmp";
                         }                        
                     }
                 }
                 catch(Exception $e)//If the request fail, so catch and continue the loop to next letter
                 {
-                    echo "Request fail at: -- $i --. $e";
+                    $collection['errors']['fails'][]= "Request fail at: $i";
                     continue;
                 }
+                //Notice that the errors property only appear when really happened an error
             }
 
-            $percentage = ($improper/$proper)*100;//Calculating the improper names relation
+            if($proper > 0)//If all request fail so $proper will be 0 (division by zero)
+            {
+                $percentage = ($improper/$proper)*100;//Calculating the improper names percentage
+            }
+            else
+            {
+                $percentage = 0;//If no proper names so percentage will be zero
+            }
             $end_time = Api::microtime_float(); //Obtaining the end time at the end of the loop
             $total_time = $end_time - $startTime; //Calculating total execution time
             $total = $proper + $improper;//Calculating the total names counter
@@ -410,18 +419,15 @@
                 *   Inserting statistics into the collections
                 *
             */
-            $collection['proper'] = $proper;
-            $collection['improper'] = "$improper ($percentage%)";
-            $collection['total_names'] = $total;
-            $collection['execution_time'] = $total_time;
-            $collection['query_string'] = $queries;
+            $collection['statistics']['proper_names'] = $proper;
+            $collection['statistics']['improper_names'] = "$improper ($percentage%)";
+            $collection['statistics']['total_names'] = $total;
+            $collection['statistics']['execution_time'] = $total_time;
+            $collection['statistics']['query_string'] = $queries;
 
-            //Parsing the collections into a final JSON
-
+            //Parsing the collections into a final JSON using pretty print
             $final = json_encode($collection, JSON_PRETTY_PRINT);
 
-            echo $final;
-
-            exit;
+            return $final;//The obtaines final JSON is returned to the browser
         }
 	}
