@@ -2,11 +2,13 @@
 /vendor
 composer.phar
 composer.lock
-.env.*.php
-.env.php
+
 .DS_Store
 Thumbs.db
-
+.env.*.php
+.env.php
 # Site configurations
 *.sublime-workspace
 *.sublime-project
+
+app/resources

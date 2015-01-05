@@ -397,7 +397,7 @@
                 catch(Exception $e)//If the request fail, so catch and continue the loop to next letter
                 {
                     $collection['errors']['fails'][]= "Request fail at: $i";
-                    continue;
+                    continue; //Continue with the nexr character on the loop
                 }
                 //Notice that the errors property only appear when really happened an error
             }
@@ -431,3 +431,83 @@
             return $final;//The obtaines final JSON is returned to the browser
         }
 	}
+
+
+
+/*$namesdir = '../../app/resources/names/';
+            $isosdir = '../../app/resources/isocodes/';
+
+            $countriesFile = file_get_contents($isosdir.'country_iso.json');
+            $countries = json_decode($countriesFile, true);
+
+            //var_dump($countries);
+
+            //exit;
+            //$countries = array();*/
+            /*foreach ($countries as $country)
+            {
+                $name = $country['name'];
+                $alpha2 = $country['alpha-2'];
+                $alpha3 = $country['alpha-3'];
+                $countryCode = $country['country-code'];
+                $region = '';
+
+                $country = new Country;
+                $country->setAttributes($name, $alpha2, $alpha3, $countryCode, $region);
+                //$countries[] = $country;
+                $country->save();
+            }*/
+            //Country::insert($countries);
+
+            //exit;
+
+
+            /**********************/
+
+            /*$languagesFile = file_get_contents($isosdir.'langs_iso_1.json');
+            $languages = json_decode($languagesFile, true);
+
+            //var_dump($languages);
+
+            //exit;
+            //$languages = array();
+            foreach ($languages as $code => $language)
+            {
+                //var_dump($code);
+                $name = $language['name'];
+                $nativename = $language['nativename'];
+
+                //echo "$name, $nativename, $code";
+
+                $language = new Language;
+                $language->setAttributes($name, $code, $nativename);
+                //$languages[] = $country;
+                $language->save();
+            }*/
+
+
+
+            /*$nameFiles = scandir($namesdir);
+
+            $namesdb = array();
+            for($i = 13; $i < 14; $i++)
+            {
+                $namesFile = file_get_contents($namesdir.$nameFiles[$i]);
+                $names = json_decode($namesFile, true);
+                $names = $names['nombres'];
+                $namesdb[] = $names;
+
+                foreach ($names as $value => $name)
+                {
+                    $popularity = $name['popularidad'];
+                    $gender = $name['sexo']['codigo'];
+                    $composition = $name['composicion'];
+                    $meaning = $name['significado'];
+                    $procedence = $name['procedencia'];
+                    $country = $name['pais']['codigo'];
+                    $language = 'es';
+                    $dbName = new Name;
+                    $dbName->setAttributes($value, $popularity, $gender, $composition, $meaning, $procedence, $country, $language);
+                    $dbName->save();
+                }
+            }*/
