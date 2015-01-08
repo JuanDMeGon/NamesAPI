@@ -1,5 +1,12 @@
 <?php
-	ini_set('max_execution_time', 60*60*5);
+	//ini_set('max_execution_time', 60*60*5);
+    ini_set('max_execution_time', 0); //Unlimited execution time
+
+    ini_set('memory_limit', '512M'); //Setting up memory ussage
+
+    /*var_dump((ini_get('memory_limit')));
+
+    exit;*/
 
     header('Content-Type: text/html; charset=UTF-8');
 
@@ -286,7 +293,12 @@
             $startTime = Api::microtime_float(); //Obtaining the execution start time
 
             $queries = '|';//Initializing a variable with all the running queries
-            for ($i = 'a'; $i <= 'a'; $i++) //Loop through letters
+
+            //Is defined a start and limmit letters for the queries
+            $start = 'a';
+            $limit = 'dz';
+
+            for ($i = $start; ; $i++) //Loop through letters
             {
                 try//Because the request could fail, we use try
                 {
@@ -396,10 +408,13 @@
                 }
                 catch(Exception $e)//If the request fail, so catch and continue the loop to next letter
                 {
-                    $collection['errors']['fails'][]= "Request fail at: $i";
-                    continue; //Continue with the nexr character on the loop
+                    echo $e;
+                    //$collection['errors']['fails'][]= "Request fail at: $i";
+                    //continue; //Continue with the nexr character on the loop
                 }
                 //Notice that the errors property only appear when really happened an error
+
+                if($i == $limit) break;//If the limit letter is reached
             }
 
             if($proper > 0)//If all request fail so $proper will be 0 (division by zero)
@@ -428,7 +443,13 @@
             //Parsing the collections into a final JSON using pretty print
             $final = json_encode($collection, JSON_PRETTY_PRINT);
 
-            return $final;//The obtaines final JSON is returned to the browser
+            //Building the final file path
+            $file = '../../app/resources/isocodes/'.sha1($queries).'.json';
+
+
+            file_put_contents($file, $final);//Saving the file content.
+
+            return "success";
         }
 	}
 
