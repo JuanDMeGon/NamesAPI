@@ -23,8 +23,6 @@ $api = function()
 {
 	Route::get('/', 'ApiController@index');
 	Route::get('/names/custom', array('uses' => 'ApiController@customQuery'));
-	Route::get('/test', array('uses' => 'ApiController@test'));
-	Route::get('/test2', array('uses' => 'ApiController@test2'));
 	Route::get('/tojson', array('uses' => 'ApiController@tojson'));
 	Route::get('/names/{name}', array('uses' => 'ApiController@getByName'))->where(array('name' => '^([A-Za-z]{2,})( [A-Za-z]{2,}){0,1}$'));
 
